@@ -1,0 +1,60 @@
+name: "StartTech Infrastructure Deployment"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: "Automated Terraform Core Execution"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+      # 1. Pull down the repository source code
+      - name: "Checkout Code Repository"
+        uses: actions/checkout@v4
+
+      # 2. Authenticate securely with AWS using programmatic secrets
+      - name: "Configure AWS Platform Credentials"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1"
+
+      # 3. Mount the official HashiCorp Terraform runtime engine
+      - name: "Setup Terraform Engine Environment"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+
+      # 4. Check for clean, standardized alignment syntax
+      - name: "Verify Code Style Alignment (fmt)"
+        run: terraform fmt -check -recursive
+
+      # 5. Initialize the backend providers and download module trees
+      - name: "Initialize Working State Providers (init)"
+        run: terraform init
+
+      # 6. Run static compilation checks over all internal modules
+      - name: "Validate Sub-Module Dependencies (validate)"
+        run: terraform validate
+
+      # 7. Generate a predictive dry-run execution blueprint
+      - name: "Generate Architectural Dry-Run Blueprint (plan)"
+        run: terraform plan -no-color
+
+      # 8. Safely deploy resource graphs to active cloud systems (Main Branch Only)
+      - name: "Execute Active Cloud Asset Provisioning (apply)"
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
