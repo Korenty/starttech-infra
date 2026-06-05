@@ -1,0 +1,41 @@
+================================================================================
+STARTTECH OPERATIONAL LOG INSIGHTS QUERY SUITE
+================================================================================
+
+QUERY 1: ISOLATE RUNTIME ERRORS AND CRITICAL EXCEPTIONS
+Description: Filters out general info/debug logs and aggregates active errors, warnings, and panics by count.
+--------------------------------------------------------------------------------
+fields @timestamp, @message, @logStream
+| filter @message =~ /(?i)(error|panic|fatal|exception|fail)/
+| sort @timestamp desc
+| limit 100
+--------------------------------------------------------------------------------
+
+QUERY 2: IDENTIFY HTTP 5XX ERROR VELOCITY
+Description: Targets upstream server errors and breaks them down into 5-minute tracking bins to find error spikes.
+--------------------------------------------------------------------------------
+fields @timestamp, status, path, ip
+| filter status >= 500
+| stats count() as ErrorCount by bin(5m)
+| sort ErrorCount desc
+--------------------------------------------------------------------------------
+
+QUERY 3: LATENCY ANALYSIS & SLOW ENDPOINT PROFILING
+Description: Calculates average, 95th percentile (p95), and maximum response times to track down slow API paths.
+--------------------------------------------------------------------------------
+fields @timestamp, path, duration_ms
+| filter ispresent(duration_ms)
+| stats avg(duration_ms) as AvgLatency, pct(duration_ms, 95) as p95Latency, max(duration_ms) as MaxLatency by path
+| sort p95Latency desc
+| limit 20
+--------------------------------------------------------------------------------
+
+QUERY 4: LIVE TRAFFIC VOLUME BY REQUEST PATH
+Description: Tracks overall application usage metrics to map out entry load patterns across your microservices.
+--------------------------------------------------------------------------------
+fields @timestamp, path, method
+| filter ispresent(path)
+| stats count() as RequestCount by path, method
+| sort RequestCount desc
+| limit 50
+================================================================================

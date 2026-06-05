@@ -1,0 +1,44 @@
+{
+  "Alarms": [
+    {
+      "AlarmName": "starttech-production-high-cpu-alarm",
+      "AlarmDescription": "Triggers an alert if the average compute pool CPU utilization exceeds 80% for two consecutive tracking periods.",
+      "ActionsEnabled": true,
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/EC2",
+      "Statistic": "Average",
+      "Dimensions": [
+        {
+          "Name": "AutoScalingGroupName",
+          "Value": "starttech-production-asg"
+        }
+      ],
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 80.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold"
+    },
+    {
+      "AlarmName": "starttech-production-unhealthy-hosts-alarm",
+      "AlarmDescription": "Triggers an alert immediately if any backend server node drops out of a healthy state in the ALB target group.",
+      "ActionsEnabled": true,
+      "MetricName": "UnHealthyHostCount",
+      "Namespace": "AWS/ApplicationELB",
+      "Statistic": "Average",
+      "Dimensions": [
+        {
+          "Name": "TargetGroup",
+          "Value": "starttech-production-tg"
+        },
+        {
+          "Name": "LoadBalancer",
+          "Value": "starttech-production-alb"
+        }
+      ],
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 1.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold"
+    }
+  ]
+}
