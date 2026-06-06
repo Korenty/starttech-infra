@@ -41,6 +41,7 @@ module "compute" {
   private_subnet_ids = module.networking.private_subnet_ids
   alb_sg_id          = module.networking.alb_sg_id
   backend_sg_id      = module.networking.backend_sg_id
+  mongodb_uri        = var.mongodb_uri
 }
 
 # 4. Module 3: Frontend Storage Bucket & Edge CloudFront CDN

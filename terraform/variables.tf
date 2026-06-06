@@ -51,3 +51,9 @@ variable "domain_name" {
   description = "Root custom domain name configuration string"
   default     = "starttech.fanuel.pro.et"
 }
+
+variable "mongodb_uri" {
+  description = "The MongoDB connection string"
+  type        = string
+  sensitive   = true
+}
