@@ -43,3 +43,9 @@ variable "aws_account_id" {
   description = "The 12-digit AWS Account ID"
   default     = "475418221916"
 }
+
+variable "mongodb_uri" {
+  description = "The MongoDB connection string"
+  type        = string
+  sensitive   = true
+}

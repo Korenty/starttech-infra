@@ -89,9 +89,9 @@ resource "aws_launch_template" "backend_template" {
     # Login to ECR and pull your backend
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
-    # Run container with URL-encoded MONGODB_URI
+    # Run container securely using variables
     docker run -d -p 8080:8080 \
-      -e MONGODB_URI='mongodb+srv://admin:Boldendeavor%40100%24@starttech.kou08fy.mongodb.net/?appName=starttech' \
+      -e MONGODB_URI='${var.mongodb_uri}' \
       --restart unless-stopped \
       ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
   EOF
