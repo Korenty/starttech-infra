@@ -91,7 +91,7 @@ resource "aws_launch_template" "backend_template" {
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
     # Run container with injected MONGODB_URI
     docker run -d -p 8080:8080 \
-      -e MONGODB_URI='mongodb+srv://admin:Boldendeavor@100$@starttech.kou08fy.mongodb.net/?appName=starttech' \
+      -e MONGODB_URI='mongodb+srv://admin:Boldendeavor@100\$@starttech.kou08fy.mongodb.net/?appName=starttech' \
       --restart unless-stopped \
       ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
   EOF
