@@ -22,13 +22,11 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_policy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-# Added: ECR Read-Only access so the instance can pull the image
 resource "aws_iam_role_policy_attachment" "ecr_policy" {
   role       = aws_iam_role.ec2_logging_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Added: SSM Managed Instance Core so you can use Session Manager
 resource "aws_iam_role_policy_attachment" "ssm_policy" {
   role       = aws_iam_role.ec2_logging_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -70,7 +68,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# 4. EC2 Launch Template (Updated with user_data)
+# 4. EC2 Launch Template (Updated with injected MongoDB URI)
 resource "aws_launch_template" "backend_template" {
   name_prefix   = "${var.project_name}-${var.environment}-tpl-"
   image_id      = data.aws_ami.amazon_linux_2023.id
@@ -91,7 +89,11 @@ resource "aws_launch_template" "backend_template" {
     # Login to ECR and pull your backend
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
-    docker run -d -p 8080:8080 --restart unless-stopped ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
+    # Run container with injected MONGODB_URI
+    docker run -d -p 8080:8080 \
+      -e MONGODB_URI='mongodb+srv://admin:Boldendeavor@100$@starttech.kou08fy.mongodb.net/?appName=starttech' \
+      --restart unless-stopped \
+      ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
   EOF
   )
 }
