@@ -37,3 +37,9 @@ variable "backend_sg_id" {
   type        = string
   description = "The EC2 backend layer configuration security barrier identifier"
 }
+
+variable "aws_account_id" {
+  type        = string
+  description = "The 12-digit AWS Account ID"
+  default     = "475418221916"
+}
