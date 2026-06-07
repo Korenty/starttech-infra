@@ -17,3 +17,6 @@ tfplan.binary
 # Ignore system log files
 *.log
 crash.log
+
+# Ignore personal database override files
+terraform.tfvarsterraform.tfvars
