@@ -68,7 +68,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# 4. EC2 Launch Template (Updated with injected MongoDB URI)
+# 4. EC2 Launch Template
 resource "aws_launch_template" "backend_template" {
   name_prefix   = "${var.project_name}-${var.environment}-tpl-"
   image_id      = data.aws_ami.amazon_linux_2023.id
@@ -89,8 +89,9 @@ resource "aws_launch_template" "backend_template" {
     # Login to ECR and pull your backend
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
-    # Run container securely using variables
+    # Run container with both variable names to ensure compatibility
     docker run -d -p 8080:8080 \
+      -e MONGO_URI='${var.mongodb_uri}' \
       -e MONGODB_URI='${var.mongodb_uri}' \
       --restart unless-stopped \
       ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
