@@ -88,9 +88,29 @@ resource "aws_launch_template" "backend_template" {
     systemctl start docker
     systemctl enable docker
     usermod -a -G docker ec2-user
-    
+
+    # Create CloudWatch Config for Docker logs
+    mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+    cat <<'JSON' > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    {
+      "logs": {
+        "logs_collected": {
+          "files": {
+            "collect_list": [
+              {
+                "file_path": "/var/lib/docker/containers/*/*.log",
+                "log_group_name": "starttech-backend-logs",
+                "log_stream_name": "{instance_id}"
+              }
+            ]
+          }
+        }
+      }
+    }
+    JSON
+
     # Configure and start CloudWatch Agent
-    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c default
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
     systemctl start amazon-cloudwatch-agent
     systemctl enable amazon-cloudwatch-agent
 
