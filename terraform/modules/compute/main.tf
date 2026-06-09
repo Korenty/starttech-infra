@@ -82,14 +82,16 @@ resource "aws_launch_template" "backend_template" {
   user_data = base64encode(<<-EOF
     #!/bin/bash
     yum update -y
-    yum install -y docker
+    yum install -y docker amazon-cloudwatch-agent
     systemctl start docker
     systemctl enable docker
+    systemctl start amazon-cloudwatch-agent
+    systemctl enable amazon-cloudwatch-agent
     usermod -a -G docker ec2-user
-    # Login to ECR and pull your backend
+    # Login to ECR
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com
+    # Pull and Run
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
-    # Run container with both variable names to ensure compatibility
     docker run -d -p 8080:8080 \
       -e MONGO_URI='${var.mongodb_uri}' \
       -e MONGODB_URI='${var.mongodb_uri}' \
