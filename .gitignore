@@ -1,22 +1,14 @@
-# Ignore local .terraform compiled binaries and dependencies
-**/.terraform/
+# Ignore local Terraform state and dependencies
 .terraform/
-
-# Ignore local state verification caches
 *.tfstate
 *.tfstate.*
+*.tfplan
+*.tfplan.binary
 
-# Ignore execution dry-run plans
-tfplan
-tfplan.binary
-
-# Ignore personal environment override files
+# Ignore sensitive variable files (CRITICAL)
 *.tfvars
 *.tfvars.json
 
-# Ignore system log files
+# Ignore system/log files
 *.log
 crash.log
-
-# Ignore personal database override files
-terraform.tfvarsterraform.tfvars
