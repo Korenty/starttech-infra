@@ -83,13 +83,20 @@ resource "aws_launch_template" "backend_template" {
     #!/bin/bash
     yum update -y
     yum install -y docker amazon-cloudwatch-agent
+    
+    # Start and enable Docker
     systemctl start docker
     systemctl enable docker
+    usermod -a -G docker ec2-user
+    
+    # Configure and start CloudWatch Agent
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c default
     systemctl start amazon-cloudwatch-agent
     systemctl enable amazon-cloudwatch-agent
-    usermod -a -G docker ec2-user
+
     # Login to ECR
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com
+    
     # Pull and Run
     docker pull ${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/starttech-backend:latest
     docker run -d -p 8080:8080 \
